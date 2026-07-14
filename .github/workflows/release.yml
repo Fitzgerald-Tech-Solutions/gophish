@@ -62,7 +62,7 @@ jobs:
 
     package:
         name: Package Assets
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted]
         needs: build
         steps:
             - uses: actions/checkout@v2
@@ -103,7 +103,7 @@ jobs:
     
     upload:
         name: Upload to the Release
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted]
         needs: package
         steps:
             - uses: actions/download-artifact@v2
