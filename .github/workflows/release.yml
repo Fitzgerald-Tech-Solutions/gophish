@@ -40,7 +40,7 @@ jobs:
               with:
                 go-version: 1.14
             - if: matrix.os == 'ubuntu-latest'
-              run: sudo apt-get update && sudo apt-get install -y gcc-multilib
+              run: apt-get update && apt-get install -y gcc-multilib
             - if: matrix.arch == '386'
               run: echo "RELEASE=gophish-${{ github.event.release.tag_name }}-${{ matrix.releaseos }}-32bit" >> $GITHUB_ENV
             - if: matrix.arch == 'amd64'
@@ -63,12 +63,16 @@ jobs:
     package:
         name: Package Assets
         runs-on: [self-hosted]
+        container:
+          image: ubuntu:24.04
         needs: build
         steps:
             - uses: actions/checkout@v2
             - uses: actions/download-artifact@v2
               with:
                 path: bin
+            - name: Install zip
+              run: apt-get update -qq && apt-get install -y -qq zip
             - name: Package Releases
               run: |
                 mkdir releases;
@@ -104,12 +108,16 @@ jobs:
     upload:
         name: Upload to the Release
         runs-on: [self-hosted]
+        container:
+          image: ubuntu:24.04
         needs: package
         steps:
             - uses: actions/download-artifact@v2
               with:
                 name: releases
                 path: releases/
+            - name: Install upload tools
+              run: apt-get update -qq && apt-get install -y -qq curl file coreutils
             # I would love to use @actions/upload-release-asset, but they don't
             # support wildcards in the asset path. Ref #9, #24, and #47
             - name: Upload Archives to Release
